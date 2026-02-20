@@ -40,14 +40,14 @@
                             "render": false
                         },
                         {
-                            "name": "genome",
+                            "name": "fasta",
                             "required": true,
                             "type":  "data",
                             "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
                             "render": true
                         },
                         {
-                            "name": "transcriptome",
+                            "name": "gtf",
                             "required": true,
                             "type":  "data",
                             "pattern": "^\\S+\\.gtf(\\.gz)?$",

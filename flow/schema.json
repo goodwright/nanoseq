@@ -21,11 +21,14 @@
                         {
                             "name": "replicate",
                             "type":  "number",
-                            "from_sample": "replicate"
+                            "from_sample": "replicate",
+                            "required": true,
+                            "render": true
                         },
                         {
                             "name": "barcode",
-                            "type": "string"
+                            "type": "string",
+                            "render": true
                         },
                         {
                             "name": "input_file",
@@ -38,13 +41,15 @@
                             "name": "genome",
                             "required": true,
                             "type":  "data",
-                            "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$"
+                            "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
+                            "render": true
                         },
                         {
                             "name": "transcriptome",
                             "required": true,
                             "type":  "data",
-                            "pattern": "^\\S+\\.gtf(\\.gz)?$"
+                            "pattern": "^\\S+\\.gtf(\\.gz)?$",
+                            "render": true
                         }
                     ]
                 },

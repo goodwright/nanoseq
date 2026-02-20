@@ -70,6 +70,16 @@
                     "name": "Skip alignment",
                     "type": "boolean",
                     "default": true
+                },
+                "skip_fusion_analysis": {
+                    "name": "Skip fusion analysis",
+                    "type": "boolean",
+                    "default": true
+                },
+                "skip_modification_analysis": {
+                    "name": "Skip modification analysis",
+                    "type": "boolean",
+                    "default": true
                 }
             }
         }

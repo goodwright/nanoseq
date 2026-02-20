@@ -16,7 +16,8 @@
                             "name": "group",
                             "type": "string",
                             "required": true,
-                            "from_sample": "group"
+                            "from_sample": "group",
+                            "render": true
                         },
                         {
                             "name": "replicate",
@@ -28,6 +29,7 @@
                         {
                             "name": "barcode",
                             "type": "string",
+                            "required": false,
                             "render": true
                         },
                         {

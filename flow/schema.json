@@ -15,7 +15,7 @@
                     ],
                     "columns": [
                         {
-                            "name": "Group",
+                            "name": "group",
                             "description": "Group identifier for sample. This will be identical for replicate samples from the same experimental group.",
                             "type": "string",
                             "required": true,
@@ -23,7 +23,7 @@
                             "render": true
                         },
                         {
-                            "name": "Replicate",
+                            "name": "replicate",
                             "description": "Integer representing replicate number. Must start from 1..<number of replicates>.",
                             "type": "number",
                             "from_sample": "replicate",
@@ -31,7 +31,7 @@
                             "render": true
                         },
                         {
-                            "name": "Barcode",
+                            "name": "barcode",
                             "description": "Barcode identifier attributed to that sample during multiplexing. Must be an integer.",
                             "type": "number",
                             "required": false,
@@ -46,7 +46,7 @@
                             "render": false
                         },
                         {
-                            "name": "Fasta",
+                            "name": "fasta",
                             "description": "Genome fasta file or transcriptome fasta file for alignment. This can either be a local path, or the appropriate key for a genome available in iGenomes config file. Must have the extension “.fasta”, “.fasta.gz”, “.fa” or “.fa.gz”.",
                             "required": true,
                             "type": "data",
@@ -54,7 +54,7 @@
                             "render": true
                         },
                         {
-                            "name": "GTF",
+                            "name": "gtf",
                             "description": "Annotation gtf file for transcript discovery and quantification and RNA modification detection.",
                             "required": false,
                             "type": "data",

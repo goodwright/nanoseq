@@ -283,7 +283,7 @@
                     "type": "string"
                 },
                 "skip_fusion_analysis": {
-                    "name": "skip_fusion_analysis",
+                    "name": "Skip fusion analysis",
                     "required": false,
                     "description": "Skip differential analysis with DESeq2 and DEXSeq.",
                     "type": "boolean"
@@ -308,7 +308,7 @@
                     "type": "boolean"
                 },
                 "skip_m6anet": {
-                    "name": "skip_m6anet",
+                    "name": "Skip m6anet",
                     "required": false,
                     "description": "Skip m6A detection with m6anet.",
                     "type": "boolean"

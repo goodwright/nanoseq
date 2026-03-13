@@ -2,7 +2,7 @@
     "inputs": [
         {
             "name": "Sample options",
-            "description": "Samples to analyse",
+            "description": "Parameters relating to the sample being analysed.",
             "advanced": false,
             "params": {
                 "input": {
@@ -10,46 +10,54 @@
                     "required": true,
                     "type": "csv",
                     "takes_samples": true,
-                    "sample_types": ["NanoSeqBam"],
+                    "sample_types": [
+                        "nanoseq"
+                    ],
                     "columns": [
                         {
-                            "name": "group",
+                            "name": "Group",
+                            "description": "Group identifier for sample. This will be identical for replicate samples from the same experimental group.",
                             "type": "string",
                             "required": true,
                             "from_sample": "group",
                             "render": true
                         },
                         {
-                            "name": "replicate",
-                            "type":  "number",
+                            "name": "Replicate",
+                            "description": "Integer representing replicate number. Must start from 1..<number of replicates>.",
+                            "type": "number",
                             "from_sample": "replicate",
                             "required": true,
                             "render": true
                         },
                         {
-                            "name": "barcode",
-                            "type": "string",
+                            "name": "Barcode",
+                            "description": "Barcode identifier attributed to that sample during multiplexing. Must be an integer.",
+                            "type": "number",
                             "required": false,
                             "render": true
                         },
                         {
                             "name": "input_file",
-                            "type":  "data",
+                            "description": "Full path to FastQ file if previously demultiplexed, BAM file if previously aligned, or a path to a directory with subdirectories containing fastq or fast5 files. FastQ file has to be zipped and have the extension “.fastq.gz” or “.fq.gz”. BAM file has to have the extension “.bam”.",
+                            "type": "data",
                             "from_sample": 1,
                             "required": true,
                             "render": false
                         },
                         {
-                            "name": "fasta",
+                            "name": "Fasta",
+                            "description": "Genome fasta file or transcriptome fasta file for alignment. This can either be a local path, or the appropriate key for a genome available in iGenomes config file. Must have the extension “.fasta”, “.fasta.gz”, “.fa” or “.fa.gz”.",
                             "required": true,
-                            "type":  "data",
+                            "type": "data",
                             "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
                             "render": true
                         },
                         {
-                            "name": "gtf",
-                            "required": true,
-                            "type":  "data",
+                            "name": "GTF",
+                            "description": "Annotation gtf file for transcript discovery and quantification and RNA modification detection.",
+                            "required": false,
+                            "type": "data",
                             "pattern": "^\\S+\\.gtf(\\.gz)?$",
                             "render": true
                         }
@@ -58,28 +66,295 @@
                 "protocol": {
                     "name": "Protocol",
                     "required": true,
+                    "description": "Input sample type.",
                     "type": "string",
-                    "valid": ["DNA", "cDNA", "directRNA"]
+                    "valid": [
+                        "DNA",
+                        "cDNA",
+                        "directRNA"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "Demultiplexing options",
+            "description": "Options required to basecall and demultiplex samples.",
+            "advanced": true,
+            "params": {
+                "input_path": {
+                    "name": "Input path",
+                    "required": false,
+                    "description": "Path to Nanopore run directory files (e.g. 'fastq_pass/*') or a basecalled fastq file that requires demultiplexing.",
+                    "type": "string"
+                },
+                "barcode_kit": {
+                    "name": "Barcode kit",
+                    "required": false,
+                    "description": "Barcode kit used to perform the sequencing e.g. 'SQK-PBK004'.",
+                    "type": "string"
+                },
+                "barcode_both_ends": {
+                    "name": "Barcode both ends",
+                    "required": false,
+                    "description": "Require barcode on both ends for basecaller.",
+                    "type": "boolean"
+                },
+                "trim_barcodes": {
+                    "name": "Trim barcodes",
+                    "required": false,
+                    "description": "Trim barcodes from the output sequences in the FastQ files from basecaller.",
+                    "type": "boolean"
+                },
+                "gpu_device": {
+                    "name": "GPU device",
+                    "required": false,
+                    "description": "Device specified in GPU mode using '--device'.",
+                    "default": "auto",
+                    "type": "string"
+                },
+                "gpu_cluster_options": {
+                    "name": "GPU cluster options",
+                    "required": false,
+                    "description": "Cluster options required to use GPU resources (e.g. '--part=gpu --gres=gpu:1').",
+                    "type": "string"
+                },
+                "qcat_min_score": {
+                    "name": "Qcat minimum score",
+                    "required": false,
+                    "description": "Specify the minimum quality score for qcat in the range 0-100.",
+                    "default": 60,
+                    "type": "number"
+                },
+                "qcat_detect_middle": {
+                    "name": "Qcat detect middle",
+                    "required": false,
+                    "description": "Search for adapters in the whole read by applying the '--detect-middle' parameter in qcat.",
+                    "type": "boolean"
                 },
                 "skip_demultiplexing": {
                     "name": "Skip demultiplexing",
-                    "type": "boolean",
-                    "default": true
+                    "required": false,
+                    "description": "Skip demultiplexing with qcat.",
+                    "type": "boolean"
+                },
+                "run_nanolyse": {
+                    "name": "Run NanoLyse",
+                    "required": false,
+                    "description": "Filter reads from FastQ files using NanoLyse",
+                    "type": "boolean"
+                },
+                "nanolyse_fasta": {
+                    "name": "NanoLyse fasta",
+                    "required": false,
+                    "description": "Fasta file to be filtered against using NanoLyse",
+                    "type": "data",
+                    "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$"
+                }
+            }
+        },
+        {
+            "name": "Alignment options",
+            "description": "Options to adjust parameters and filtering criteria for read alignments.",
+            "advanced": true,
+            "params": {
+                "aligner": {
+                    "name": "Aligner",
+                    "required": false,
+                    "description": "Specifies the aligner to use i.e. 'minimap2' or 'graphmap2'.",
+                    "default": "minimap2"
+                },
+                "stranded": {
+                    "name": "Stranded",
+                    "required": false,
+                    "description": "Specifies if the data is strand-specific. Automatically activated when using '--protocol directRNA'.",
+                    "type": "boolean"
+                },
+                "save_align_intermeds": {
+                    "name": "Save alignment intermediates",
+                    "required": false,
+                    "description": "Save the '.sam' files from the alignment step - not done by default.",
+                    "type": "boolean"
                 },
                 "skip_alignment": {
                     "name": "Skip alignment",
-                    "type": "boolean",
-                    "default": true
+                    "required": false,
+                    "description": "Skip alignment and downstream processes.",
+                    "type": "boolean"
+                }
+            }
+        },
+        {
+            "name": "Variant calling options",
+            "description": "Options to adjust pameters for DNA varinat calling and structural variant calling.",
+            "advanced": true,
+            "params": {
+                "call_variants": {
+                    "name": "Call variants",
+                    "required": false,
+                    "description": "Specifies if variant calling will executed.",
+                    "type": "boolean"
+                },
+                "variant_caller": {
+                    "name": "Variant caller",
+                    "required": false,
+                    "description": "Specifies the variant caller that will used to call small variants (available are: medaka, deepvariant, and pepper_margin_deepvariant). Variant calling is only available if '--call_variants' is set and the protocol is set to `DNA`. Please note `deepvariant` and `pepper_margin_deepvariant` are only avaible if using singularity or docker.",
+                    "default": "medaka",
+                    "type": "string"
+                },
+                "structural_variant_caller": {
+                    "name": "Structural variant caller",
+                    "required": false,
+                    "description": "Specifies the variant caller that will be used to call structural variants (available are: sniffles and cutesv). Structural variant calling is only available if '--call_variants' is set and the protocol is set to `DNA`.",
+                    "default": "sniffles",
+                    "type": "string"
+                },
+                "split_mnps": {
+                    "name": "Split MNPs",
+                    "required": false,
+                    "description": "Specifies if MNPs will be split into SNPs when using medaka.",
+                    "type": "boolean"
+                },
+                "deepvariant_gpu": {
+                    "name": "DeepVariant GPU mode",
+                    "required": false,
+                    "description": "Specifies whether to call variants with pepper_margin_deepvariant in GPU mode.",
+                    "type": "boolean"
+                },
+                "phase_vcf": {
+                    "name": "Phase vcf",
+                    "required": false,
+                    "description": "Specifies if vcf will be phased when using medaka.",
+                    "type": "boolean"
+                },
+                "skip_vc": {
+                    "name": "Skip VC",
+                    "required": false,
+                    "description": "Skip variant calling.",
+                    "type": "boolean"
+                },
+                "skip_sv": {
+                    "name": "Skip SV",
+                    "required": false,
+                    "description": "Skip structural variant calling.",
+                    "type": "boolean"
+                }
+            }
+        },
+        {
+            "name": "Differential analysis options",
+            "description": "Options to adjust quantification and differential analysis.",
+            "advanced": true,
+            "params": {
+                "quantification_method": {
+                    "name": "Quantification method",
+                    "required": false,
+                    "description": "Specifies the transcript quantification method to use (available are: bambu or stringtie2). Only available when protocol is cDNA or directRNA.",
+                    "default": "bambu",
+                    "type": "string",
+                    "valid": [
+                        "bambu",
+                        "stringtie2"
+                    ]
+                },
+                "skip_quantification": {
+                    "name": "Skip quantification",
+                    "required": false,
+                    "description": "Skip transcript quantification and differential analysis.",
+                    "type": "boolean"
+                },
+                "skip_differential_analysis": {
+                    "name": "Skip differential analysis",
+                    "required": false,
+                    "description": "Skip differential analysis with DESeq2 and DEXSeq.",
+                    "type": "boolean"
+                }
+            }
+        },
+        {
+            "name": "RNA fusion analysis options",
+            "description": "Options to adjust parameters for RNA fusion analysis with JAFFAL.",
+            "advanced": true,
+            "params": {
+                "jaffal_ref_dir": {
+                    "name": "JAFFAL reference directory",
+                    "required": false,
+                    "description": "Specifies the reference directory for JAFFAL.",
+                    "default": "for_jaffal",
+                    "type": "string"
                 },
                 "skip_fusion_analysis": {
-                    "name": "Skip fusion analysis",
-                    "type": "boolean",
-                    "default": true
-                },
+                    "name": "skip_fusion_analysis",
+                    "required": false,
+                    "description": "Skip differential analysis with DESeq2 and DEXSeq.",
+                    "type": "boolean"
+                }
+            }
+        },
+        {
+            "name": "RNA modification analysis options",
+            "description": "Options to adjust the RNA modification analysis.",
+            "advanced": true,
+            "params": {
                 "skip_modification_analysis": {
                     "name": "Skip modification analysis",
-                    "type": "boolean",
-                    "default": true
+                    "required": false,
+                    "description": "Skip RNA modification analysis.",
+                    "type": "boolean"
+                },
+                "skip_xpore": {
+                    "name": "Skip xpore",
+                    "required": false,
+                    "description": "Skip differential modification analysis with xpore.",
+                    "type": "boolean"
+                },
+                "skip_m6anet": {
+                    "name": "skip_m6anet",
+                    "required": false,
+                    "description": "Skip m6A detection with m6anet.",
+                    "type": "boolean"
+                }
+            }
+        },
+        {
+            "name": "Process skipping options",
+            "description": "Options to skip various steps within the workflow.",
+            "advanced": true,
+            "params": {
+                "skip_bigbed": {
+                    "name": "Skip BigBed",
+                    "required": false,
+                    "description": "Skip BigBed file generation.",
+                    "type": "boolean"
+                },
+                "skip_bigwig": {
+                    "name": "Skip BigWig",
+                    "required": false,
+                    "description": "Skip BigWig file generation.",
+                    "type": "boolean"
+                },
+                "skip_nanoplot": {
+                    "name": "Skip NanoPlot",
+                    "required": false,
+                    "description": "Skip NanoPlot.",
+                    "type": "boolean"
+                },
+                "skip_fastqc": {
+                    "name": "Skip FastQC",
+                    "required": false,
+                    "description": "Skip FastQC.",
+                    "type": "boolean"
+                },
+                "skip_multiqc": {
+                    "name": "Skip MultiQC",
+                    "required": false,
+                    "description": "Skip MultiQC.",
+                    "type": "boolean"
+                },
+                "skip_qc": {
+                    "name": "Skip QC",
+                    "required": false,
+                    "description": "Skip all QC steps apart from MultiQC.",
+                    "type": "boolean"
                 }
             }
         }
